@@ -3,11 +3,14 @@ import logging
 
 import betterlogging as bl
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 
 from tgbot.handlers.admin import admin_router
-from tgbot.handlers.user import user_router
+from tgbot.handlers.user.start import user_router
+from tgbot.middlewares.authorization import AuthorizationMiddleware
 from tgbot.middlewares.config import ConfigMiddleware
 from tgbot.middlewares.throttling import ThrottlingMiddleware
 from tgbot.misc.mongostorage import MongoStorage
@@ -26,6 +29,9 @@ async def on_startup(bot: Bot, admin_ids: list[int]):
 def register_global_middlewares(dp: Dispatcher, config):
     dp.message.outer_middleware(ConfigMiddleware(config))
     dp.callback_query.outer_middleware(ConfigMiddleware(config))
+
+    dp.message.outer_middleware(AuthorizationMiddleware())
+
     dp.message.middleware(ThrottlingMiddleware())
     dp.callback_query.middleware(CallbackAnswerMiddleware())
 
@@ -49,14 +55,12 @@ async def main():
     else:
         storage = MemoryStorage()
 
-    bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+    bot = Bot(token=config.tg_bot.token,
+              default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher(storage=storage)
 
-    for router in [
-        user_router,
-        admin_router,
-    ]:
-        dp.include_router(router)
+    dp.include_routers(user_router,
+                       admin_router)
 
     register_global_middlewares(dp, config)
 

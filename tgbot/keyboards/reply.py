@@ -1,7 +1,9 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-test_keyoard = ReplyKeyboardMarkup(keyboard=[
+main_markup = ReplyKeyboardMarkup(keyboard=[
     [
-        KeyboardButton(text='Тест')
+        KeyboardButton(text='Мои чаты'),
+        KeyboardButton(text='Мои ключевые слова')
     ]
-])
+],
+    resize_keyboard=True)

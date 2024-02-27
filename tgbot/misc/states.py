@@ -1,6 +1,11 @@
 from aiogram.fsm.state import StatesGroup, State
 
 
-class TestState(StatesGroup):
-    test1 = State()
-    test2 = State()
+class ChannelState(StatesGroup):
+    waiting_add = State()
+    waiting_delete = State()
+
+
+class KeywordState(StatesGroup):
+    waiting_add = State()
+    waiting_delete = State()
